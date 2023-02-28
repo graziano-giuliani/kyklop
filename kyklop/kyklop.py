@@ -34,8 +34,8 @@ def date_to_hrs(date):
 class CycloneDetector(object):
     def __init__(self, filename):
         nc = Dataset(filename)
-        self.debug_mode = 1.
-        print self.debug_mode
+        self.debug_mode = 0.
+        #print(self.debug_mode)
         self.dt = nc.variables["time"][1]-nc.variables["time"][0]
         self.xlon = nc.variables["xlon"][:]
         self.xlat = nc.variables["xlat"][:]
@@ -101,7 +101,7 @@ class CycloneDetector(object):
         self.time = numpy.hstack([self.time, time])
         tc_table = []
         masks = numpy.empty(nc.variables["ps"].shape)
-        for i in xrange(len(time)):
+        for i in range(len(time)):
             masks[i,:,:], tcs = self.detect_tc_in_step(nc, i)
             for tc in tcs:
                 row = [time[i]]
@@ -161,12 +161,12 @@ class CycloneDetector(object):
         self.m.drawparallels(numpy.arange(-14, 49, 10), labels=[1,0,0,0])
         self.m.drawmeridians(numpy.arange(-140, 20, 10), labels=[0,0,0,1])
         texts = []
-        if self.tracked_tcs != None and len(self.tracked_tcs)>0:
+        if self.tracked_tcs is not None and len(self.tracked_tcs)>0:
             min_speed = self.tracked_tcs[:,3].min()
             max_speed = self.tracked_tcs[:,3].max()
             wind_speed_norm = colors.Normalize(vmin=min_speed, vmax=max_speed)
             wind_speed_mapper = cm.ScalarMappable(norm=wind_speed_norm)
-            for at in xrange(1, int(self.tracked_tcs[:,-1].max())+1):
+            for at in range(1, int(self.tracked_tcs[:,-1].max())+1):
                 inds = self.tracked_tcs[:,-1]==at
                 lons = self.tracked_tcs[inds][:,1]
                 lats = self.tracked_tcs[inds][:,2]
@@ -215,7 +215,6 @@ def build_filename_list():
 
 
 def main():
-    matplotlib.verbose.level = 'debug'
     filenames = build_filename_list()
     detector = CycloneDetector(filenames[0])
     for fn in filenames:
