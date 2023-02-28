@@ -215,6 +215,9 @@ def build_filename_list():
 
 
 def main():
+    if len(sys.argv) == 0:
+        print('Need input netCDF filenamei(s) with variables uas,vas,ts,ps')
+        sys.exit(-1)
     filenames = build_filename_list()
     detector = CycloneDetector(filenames[0])
     for fn in filenames:
