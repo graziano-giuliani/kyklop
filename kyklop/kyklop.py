@@ -11,7 +11,7 @@ from netCDF4 import Dataset
 import numpy
 from numpy import logical_or, logical_and
 import pytz
-from scipy.interpolate import interp1d, interp2d
+from scipy.interpolate import RectBivariateSpline
 from skimage.morphology import remove_small_objects, binary_opening, disk, binary_closing
 from skimage.measure import label, regionprops
 import sys
@@ -41,10 +41,8 @@ class CycloneDetector(object):
         self.xlat = nc.variables["xlat"][:]
         N_lon = self.xlon.shape[1]
         N_lat = self.xlat.shape[0]
-        #self.idx_to_lon = interp1d(numpy.arange(N_lon), self.xlon[0,:])
-        #self.idx_to_lat = interp1d(numpy.arange(N_lat), self.xlat[:,0])
-        self.idx_to_lon = interp2d(numpy.arange(N_lon), numpy.arange(N_lat), self.xlon)
-        self.idx_to_lat = interp2d(numpy.arange(N_lon), numpy.arange(N_lat), self.xlat)
+        self.idx_to_lon = RectBivariateSpline(numpy.arange(N_lon), numpy.arange(N_lat), self.xlon.T)
+        self.idx_to_lat = RectBivariateSpline(numpy.arange(N_lon), numpy.arange(N_lat), self.xlat.T)
         self.left = self.xlon.min()
         self.right = self.xlon.max()
         self.bottom = self.xlat.min()+18
@@ -226,7 +224,11 @@ def main():
         detector.ingest_netcdf(fn)
     detector.tracking()
     tracked_tcs = detector.tracked_tcs
+    # Save in a text file
     numpy.savetxt("tcs.dat", tracked_tcs)
+    # and print on screen text file content
+    with open("tcs.dat") as f:
+        print(f.read( ))
     detector.show_tcs()
 
 
